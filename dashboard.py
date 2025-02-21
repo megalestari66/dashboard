@@ -1,6 +1,5 @@
 import streamlit as st
 import pandas as pd
-import plotly.express as px
 import numpy as np
 import time
 
@@ -25,16 +24,19 @@ st.markdown("---")
 
 # Sidebar Filters
 st.sidebar.header("🎯 Filter Data")
-date_range = st.sidebar.slider("🗓 Pilih Rentang Tanggal", min_value=dates.min().date(), 
-                              max_value=dates.max().date(), 
-                              value=(dates.min().date(), dates.max().date()))
+date_range = st.sidebar.slider("🗓 Pilih Rentang Tanggal", 
+                               min_value=dates.min().date(), 
+                               max_value=dates.max().date(), 
+                               value=(dates.min().date(), dates.max().date()))
 
 # Real-Time Data Update
 placeholder = st.empty()
 while True:
+    # Update data secara acak
     df['Donations'] = np.random.randint(100, 1000, size=30)
     df['Donors'] = np.random.randint(10, 100, size=30)
-    filtered_df = df[(df['Date'] >= pd.Timestamp(date_range[0])) & (df['Date'] <= pd.Timestamp(date_range[1]))]
+    filtered_df = df[(df['Date'] >= pd.Timestamp(date_range[0])) & 
+                     (df['Date'] <= pd.Timestamp(date_range[1]))]
     
     with placeholder.container():
         st.markdown("### 📌 KPI Utama")
@@ -46,9 +48,8 @@ while True:
         st.markdown("---")
         
         st.subheader("📈 Tren Donasi")
-        fig_donations = px.line(filtered_df, x='Date', y='Donations', title='📊 Tren Donasi per Hari', 
-                                template='seaborn', markers=True)
-        st.plotly_chart(fig_donations, use_container_width=True)
+        # Menggunakan st.line_chart untuk grafik garis tren donasi
+        st.line_chart(filtered_df.set_index('Date')['Donations'])
 
         st.markdown("---")
         
@@ -57,9 +58,8 @@ while True:
             "Tahap": ["Pengunjung Halaman", "Klik Donasi", "Transaksi Berhasil"],
             "Jumlah": [10000, 2500, 800]
         })
-        fig_funnel = px.funnel(funnel_data, x='Jumlah', y='Tahap', title='🚀 Funnel Konversi Donasi', 
-                                template='seaborn')
-        st.plotly_chart(fig_funnel, use_container_width=True)
+        # Menggunakan st.bar_chart untuk grafik funnel sederhana
+        st.bar_chart(funnel_data.set_index("Tahap"))
         
         st.markdown("---")
         
