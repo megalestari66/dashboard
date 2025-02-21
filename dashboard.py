@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import time
+import altair as alt
 
 # Simulasi Data Real-Time
 np.random.seed(42)
@@ -48,7 +49,6 @@ while True:
         st.markdown("---")
         
         st.subheader("📈 Tren Donasi")
-        # Menggunakan st.line_chart untuk grafik garis tren donasi
         st.line_chart(filtered_df.set_index('Date')['Donations'])
 
         st.markdown("---")
@@ -58,8 +58,12 @@ while True:
             "Tahap": ["Pengunjung Halaman", "Klik Donasi", "Transaksi Berhasil"],
             "Jumlah": [10000, 2500, 800]
         })
-        # Menggunakan st.bar_chart untuk grafik funnel sederhana
-        st.bar_chart(funnel_data.set_index("Tahap"))
+        # Menggunakan Altair agar label pada sumbu X tampil horizontal (tidak miring)
+        funnel_chart = alt.Chart(funnel_data).mark_bar().encode(
+            x=alt.X("Tahap:N", axis=alt.Axis(labelAngle=0, title="Tahap")),
+            y=alt.Y("Jumlah:Q", title="Jumlah")
+        )
+        st.altair_chart(funnel_chart, use_container_width=True)
         
         st.markdown("---")
         
