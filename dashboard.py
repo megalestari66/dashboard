@@ -30,39 +30,45 @@ date_range = st.sidebar.slider("🗓 Pilih Rentang Tanggal",
                                max_value=dates.max().date(), 
                                value=(dates.min().date(), dates.max().date()))
 
-# Real-Time Data Update
 placeholder = st.empty()
+
 while True:
-    # Update data secara acak
+    # Update data untuk line chart dan map
     df['Donations'] = np.random.randint(100, 1000, size=30)
     df['Donors'] = np.random.randint(10, 100, size=30)
-    filtered_df = df[(df['Date'] >= pd.Timestamp(date_range[0])) & 
+    filtered_df = df[(df['Date'] >= pd.Timestamp(date_range[0])) &
                      (df['Date'] <= pd.Timestamp(date_range[1]))]
-    
+
+    # Data funnel yang berubah secara dinamis
+    page_visitors = np.random.randint(8000, 12000)
+    clicks = int(page_visitors * np.random.uniform(0.2, 0.5))
+    transactions = int(clicks * np.random.uniform(0.2, 0.5))
+    funnel_data = pd.DataFrame({
+        "Tahap": ["Pengunjung Halaman", "Klik Donasi", "Transaksi Berhasil"],
+        "Jumlah": [page_visitors, clicks, transactions]
+    })
+
     with placeholder.container():
         st.markdown("### 📌 KPI Utama")
         col1, col2, col3 = st.columns(3)
         col1.metric("💰 Total Donasi", f"Rp {filtered_df['Donations'].sum():,.0f}")
         col2.metric("👥 Jumlah Donatur", f"{filtered_df['Donors'].sum()} orang")
         col3.metric("📊 Rata-rata Donasi", f"Rp {filtered_df['Donations'].mean():,.0f}")
-        
+
         st.markdown("---")
         
         st.subheader("📈 Tren Donasi")
         st.line_chart(filtered_df.set_index('Date')['Donations'])
-
+        
         st.markdown("---")
         
         st.subheader("🔍 Funnel Konversi")
-        funnel_data = pd.DataFrame({
-            "Tahap": ["Pengunjung Halaman", "Klik Donasi", "Transaksi Berhasil"],
-            "Jumlah": [10000, 2500, 800]
-        })
-        # Menggunakan Altair agar label pada sumbu X tampil horizontal (tidak miring)
+        # Membuat grafik funnel interaktif dengan Altair
         funnel_chart = alt.Chart(funnel_data).mark_bar().encode(
-            x=alt.X("Tahap:N", axis=alt.Axis(labelAngle=0, title="Tahap")),
-            y=alt.Y("Jumlah:Q", title="Jumlah")
-        )
+            x=alt.X("Tahap:N", axis=alt.Axis(labelAngle=0, title="Tahap")),  # label tetap horizontal
+            y=alt.Y("Jumlah:Q", title="Jumlah"),
+            tooltip=["Tahap", "Jumlah"]
+        ).interactive()  # Tambahkan interaktivitas (zoom, pan, hover)
         st.altair_chart(funnel_chart, use_container_width=True)
         
         st.markdown("---")
